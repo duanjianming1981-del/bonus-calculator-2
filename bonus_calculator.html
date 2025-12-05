@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>奖金计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input, button {
+            margin: 10px;
+        }
+        label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h2>奖金计算器</h2>
+
+    <label for="total_signups">总签约数:</label>
+    <input type="number" id="total_signups" /><br>
+
+    <label for="total_returns">退单数:</label>
+    <input type="number" id="total_returns" /><br>
+
+    <label for="paid_999_orders">首付999订单数:</label>
+    <input type="number" id="paid_999_orders" /><br>
+
+    <label for="paid_999_returns">首付999订单退单数:</label>
+    <input type="number" id="paid_999_returns" /><br>
+
+    <label for="target_signups">签约目标:</label>
+    <input type="number" id="target_signups" /><br>
+
+    <button onclick="calculate()">计算</button>
+
+    <h3>结果</h3>
+    <p id="result"></p>
+
+    <script>
+        function calculate() {
+            var total_signups = parseFloat(document.getElementById('total_signups').value);
+            var total_returns = parseFloat(document.getElementById('total_returns').value);
+            var paid_999_orders = parseFloat(document.getElementById('paid_999_orders').value);
+            var paid_999_returns = parseFloat(document.getElementById('paid_999_returns').value);
+            var target_signups = parseFloat(document.getElementById('target_signups').value);
+
+            // Step 1: Calculate return rate and new signups
+            var return_rate = total_returns / total_signups;
+            var new_signups = return_rate <= 0.2 ? total_signups : total_signups - total_signups * (return_rate - 0.2);
+
+            // Step 2: Calculate 999 orders ratio
+            var paid_999_orders_after_returns = paid_999_orders - paid_999_returns;
+            var total_orders_after_returns = total_signups - total_returns;
+            var paid_999_ratio = paid_999_orders_after_returns / total_orders_after_returns;
+
+            // Step 3: Calculate penalty for exceeding 20% 999 orders
+            var penalty = 0;
+            if (paid_999_ratio > 0.2) {
+                penalty = (paid_999_ratio - 0.2) * new_signups;
+            }
+
+            // Step 4: Calculate effective new signups
+            var effective_new_signups = new_signups - penalty;
+
+            // Step 5: Check if target is met
+            var meets_target = effective_new_signups >= target_signups ? "是" : "否";
+
+            // Display result
+            document.getElementById('result').innerText = "最终有效新增签约数: " + effective_new_signups.toFixed(2) + "\n是否达成目标: " + meets_target;
+        }
+    </script>
+</body>
+</html>
